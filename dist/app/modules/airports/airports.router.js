@@ -27,6 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const passport_1 = __importDefault(require("passport"));
+const isAuthorized_1 = __importDefault(require("../../middleware/isAuthorized"));
 const validateObjectId_1 = __importDefault(require("../../middleware/validateObjectId"));
 const controller = __importStar(require("./airports.controller"));
 const router = (0, express_1.Router)();
@@ -35,197 +37,224 @@ const router = (0, express_1.Router)();
  *
  * @openapi
  *
- * paths:
- *   /airports:
- *     get:
- *       tags:
- *         - Airports
- *       summary: Get all airports
- *       description: Get all airports.
- *       responses:
- *         200:
- *           description: Airports were successfully received.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Airport"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /airports:
+ *   get:
+ *     tags:
+ *       - "Airports"
+ *     summary: "Get all airports"
+ *     description: ""
+ *     responses:
+ *       "200":
+ *         description: "successfull operation"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: "array"
+ *               items:
+ *                 $ref: "#/components/schemas/Airport"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/', controller.getAllAirports);
+router.get('/', passport_1.default.authenticate('jwt', { session: false }), controller.getAllAirports);
 /**
  * Get airport by id.
  *
  * @openapi
  *
- * paths:
- *   /airports/{id}:
- *     get:
- *       tags:
- *         - Airports
- *       summary: Get airport by id
- *       description: Get airport by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Airport id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         200:
- *           description: Airport was received successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Airport"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /airports/{id}:
+ *   get:
+ *     tags:
+ *       - "Airports"
+ *     summary: "Get an airport details"
+ *     description: ""
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         description: "Airport id"
+ *         schema:
+ *           type: "string"
+ *         required: true
+ *     responses:
+ *       "200":
+ *         description: "OK"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Airport"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/:id', validateObjectId_1.default, controller.getAirportById);
+router.get('/:id', [passport_1.default.authenticate('jwt', { session: false }), validateObjectId_1.default], controller.getAirportById);
 /**
  * Create new airport.
  *
  * @openapi
  *
- * paths:
- *   /airports:
- *     post:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Airports
- *       summary: Create airport
- *       description: Adds a new airport.
- *       requestBody:
+ * /airports:
+ *   post:
+ *     tags:
+ *       - "Airports"
+ *     summary: "Add a new airport"
+ *     description: ""
+ *     requestBody:
+ *       description: "New airport added."
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             properties:
+ *               name:
+ *                 type: "string"
+ *               address:
+ *                 type: "object"
+ *                 properties:
+ *                   name:
+ *                     type: "string"
+ *                   city:
+ *                     type: "string"
+ *                   state:
+ *                     type: "string"
+ *     responses:
+ *       "200":
+ *         description: ""
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - name
- *                 - city
- *                 - state
- *               properties:
- *                 name:
- *                   type: string
- *                 city:
- *                   type: string
- *                 state:
- *                   type: string
- *       responses:
- *         201:
- *           description: Airport created successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Airport"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Airport"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "422":
+ *         $ref: "#/components/responses/422"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/', controller.addNewAirport);
+router.post('/', [passport_1.default.authenticate('jwt', { session: false }), isAuthorized_1.default], controller.addNewAirport);
 /**
  * Update airport.
  *
  * @openapi
  *
- * paths:
- *   /airports/{id}:
- *     put:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Airports
- *       summary: Upadate airport by id
- *       description: Update airport by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Airport id
+ * /airports/{id}:
+ *   put:
+ *     tags:
+ *       - "Airports"
+ *     summary: "Update an existing airport"
+ *     description: ""
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         description: "Airport id"
+ *         schema:
+ *           type: "string"
+ *         required: true
+ *     requestBody:
+ *       description: "Airport object that needs to be updated"
+ *       required: true
+ *       content:
+ *         application/json:
  *           schema:
- *             type: "string"
- *             required: true
- *       requestBody:
+ *             type: "object"
+ *             properties:
+ *               name:
+ *                 type: "string"
+ *               address:
+ *                 type: "object"
+ *                 properties:
+ *                   name:
+ *                     type: "string"
+ *                   city:
+ *                     type: "string"
+ *                   state:
+ *                     type: "string"
+ *     responses:
+ *       "200":
+ *         description: "OK"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - name
- *                 - city
- *                 - state
- *               properties:
- *                 name:
- *                   type: string
- *                 city:
- *                   type: string
- *                 state:
- *                   type: string
- *       responses:
- *         204:
- *           description: Airport updated successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Airport"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.put('/:id', validateObjectId_1.default, controller.updateAirport);
+router.put('/:id', [
+    passport_1.default.authenticate('jwt', { session: false }),
+    isAuthorized_1.default,
+    validateObjectId_1.default,
+], controller.updateAirport);
 /**
  * Delete airport.
  *
  * @openapi
  *
- * paths:
- *   /airports/{id}:
- *     delete:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Airports
- *       summary: Delete airport by id (Admin only)
- *       description: Delete airport by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Airport id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: Airport deleted successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /airports/{id}:
+ *   delete:
+ *     tags:
+ *       - "Airports"
+ *     summary: "Deletes an airport"
+ *     description: ""
+ *     parameters:
+ *       - in: "path"
+ *         name: "id"
+ *         description: "Airport id to delete"
+ *         required: true
+ *         schema:
+ *           type: "string"
+ *     responses:
+ *       "204":
+ *         description: "Airport successfully deleted"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', validateObjectId_1.default, controller.deleteAirportById);
+router.delete('/:id', [
+    passport_1.default.authenticate('jwt', { session: false }),
+    isAuthorized_1.default,
+    validateObjectId_1.default,
+], controller.deleteAirportById);
 exports.default = router;

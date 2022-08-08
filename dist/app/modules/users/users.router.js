@@ -36,32 +36,26 @@ const router = (0, express_1.Router)();
  *
  * @openapi
  *
- * paths:
- *   /users:
- *     get:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Users
- *       summary: Get all users
- *       description: Get all users.
- *       responses:
- *         200:
- *           description: Users were successfully received.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Users"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /users:
+ *   get:
+ *     tags:
+ *       - "User"
+ *     summary: "Get all users"
+ *     description: "Admin can get list of all users"
+ *     parameters: []
+ *     responses:
+ *       "200":
+ *         description: "Users read successfully."
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
 router.get('/', [passport_1.default.authenticate('jwt', { session: false }), isAuthorized_1.default], controller.getAllUsers);
 /**
@@ -69,92 +63,72 @@ router.get('/', [passport_1.default.authenticate('jwt', { session: false }), isA
  *
  * @openapi
  *
- * paths:
- *   /users/me:
- *     get:
- *       tags:
- *         - Users
- *       summary: Get user profile
- *       description: Get user profile.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: User id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         200:
- *           description: Profile were successfully received.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/User"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /users/me:
+ *   parameters:
+ *     - in: path
+ *       name: id
+ *       description: User ID
+ *       required: true
+ *       schema:
+ *         type: "string"
+ *   get:
+ *     tags:
+ *       - "User"
+ *     summary: "Get my profile"
+ *     description: "Get my profile details"
+ *     responses:
+ *       "200":
+ *         description: "User read successfully"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.get('/me', passport_1.default.authenticate('jwt', { session: false }), controller.getProfile);
 /**
  * Update user profile.
  *
  * @openapi
- *
- * paths:
- *   /users/me:
- *     patch:
- *       tags:
- *         - Users
- *       summary: Update user profile
- *       description: Update user profile.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: User id
+ * /users/me:
+ *   patch:
+ *     tags:
+ *       - "User"
+ *     summary: "Update profile"
+ *     description: "Update existing profile details"
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: User Id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
  *           schema:
- *             type: "string"
- *             required: true
- *       requestBody:
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       "200":
+ *         description: "User updated successfully"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "422":
+ *         description: Unprocessable Entity
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - firstName
- *                 - lastName
- *                 - email
- *                 - password
- *               properties:
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 email:
- *                   type: string
- *                 phoneNumber:
- *                   type: number
- *       responses:
- *         200:
- *           description: User profile updated successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/User"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
+ *               $ref: "#/components/schemas/Error"
+ *         "500":
  *           $ref: "#/components/responses/500"
  */
 router.patch('/me', passport_1.default.authenticate('jwt', { session: false }), controller.updateProfile);

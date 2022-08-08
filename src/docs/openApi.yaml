@@ -3,7 +3,7 @@ openapi: '3.0.0'
 info:
   description: 'Flight Booking System API'
   version: '1.0.0'
-  title: 'Flight Booking System Guide'
+  title: 'Flight Booking System API'
 
 servers:
   - url: http://localhost:{port}/{base_path}
@@ -40,20 +40,21 @@ components:
               description: A more specific human-readable error message together with some details
             - type: array
               description: An array with issues from multiple fields (e.g. input validation)
-    User:
+    Users:
       type: 'object'
       required:
         - 'firstName'
         - 'lastName'
         - 'email'
-        - 'password'
+        - 'phoneNumber'
       properties:
+        _id:
+          type: 'string'
         email:
           type: 'string'
           format: 'email'
-        password:
+        phoneNumber:
           type: 'string'
-          format: 'password'
         firstName:
           type: 'string'
         lastName:
@@ -66,16 +67,9 @@ components:
         name:
           type: 'string'
         seats:
-          type: 'array'
-          items:
-            type: 'object'
-            properties:
-              _id:
-                type: string
-              seatName:
-                type: 'string'
-              price:
-                type: 'integer'
+          type: 'number'
+        fuelCapacity:
+          type: 'number'
     Airport:
       type: 'object'
       properties:
@@ -88,32 +82,32 @@ components:
           properties:
             _id:
               type: 'string'
-            country:
+            name:
               type: 'string'
             city:
               type: 'string'
-            street:
-              type: 'string'
-            zipCode:
+            state:
               type: 'string'
     Flight:
       type: 'object'
       properties:
         _id:
           type: 'string'
-        departureTime:
+        departureDate:
           type: 'string'
-        arrivalTime:
+        arrivalDate:
           type: 'string'
-        flyingFrom:
+        durationInHours:
+          type: 'number'
+        durationInMiles:
+          type: 'number'
+        departureAirport:
           type: 'string'
-        flyingTo:
+        arrivalAirport:
           type: 'string'
-        airplaneId:
+        airplane:
           type: 'string'
-        defaultPrice:
-          type: 'integer'
-    Booking:
+    Ticket:
       type: 'object'
       properties:
         _id:

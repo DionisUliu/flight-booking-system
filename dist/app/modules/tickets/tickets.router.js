@@ -27,122 +27,122 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const passport_1 = __importDefault(require("passport"));
 const controller = __importStar(require("./tickets.controller"));
 const validateObjectId_1 = __importDefault(require("../../middleware/validateObjectId"));
+const isAuthorized_1 = __importDefault(require("../../middleware/isAuthorized"));
 const router = (0, express_1.Router)();
 /**
  * Get all tickets.
  *
  * @openapi
  *
- * paths:
- *   /tickets:
- *     get:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Tickets
- *       summary: Get all tickets
- *       description: Get all tickets.
- *       responses:
- *         200:
- *           description: Tickets were successfully received.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Tickets"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /tickets:
+ *   get:
+ *     tags:
+ *       - "Tickets"
+ *     summary: "Get all tickets"
+ *     description: ""
+ *     parameters: []
+ *     responses:
+ *       "200":
+ *         description: "List of bookings displayed"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: "array"
+ *               items:
+ *                 $ref: "#/components/schemas/Ticket"
+ *       "401":
+ *         description: "Not authenticated"
+ *       "400":
+ *         description: "You requests contain invalid or missing data"
+ *       "500":
+ *         description: "Internal server error"
+ *     security:
+ *       - bearerAuth: []
  */
-router.get('/', controller.getAllTickets);
+router.get('/', [passport_1.default.authenticate('jwt', { session: false }), isAuthorized_1.default], controller.getAllTickets);
 /**
  * Create new ticket.
  *
  * @openapi
  *
- * paths:
- *   /tickets:
- *     post:
- *       tags:
- *         - Tickets
- *       summary: Create ticket
- *       description: Adds a new ticket.
- *       requestBody:
- *         content:
- *           application/json:
- *             schema:
- *               required:
- *                 - seatNumber
- *                 - user
- *                 - price
- *                 - class
- *                 - flight
- *               properties:
- *                 seatNumber:
- *                   type: number
- *                 user:
- *                   type: string
- *                 price:
- *                   type: number
- *                 class:
- *                   type: string
- *                 flight:
- *                   type: string
- *       responses:
- *         201:
- *           description: Ticket created successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Ticket"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
+ * /tiskets:
+ *   post:
+ *     tags:
+ *       - "Tickets"
+ *     summary: "Create a ticket"
+ *     requestBody:
+ *       description: "Flight that needs to be booked by an individual"
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             properties:
+ *               seatNumber:
+ *                 type: "number"
+ *                 required: true
+ *               confirmationNumber:
+ *                 type: "string"
+ *                 required: true
+ *               user:
+ *                 type: "string"
+ *                 required: true
+ *               price:
+ *                 type: "number"
+ *                 required: true
+ *               class:
+ *                 type: "string"
+ *                 required: true
+ *               flight:
+ *                 type: "number"
+ *                 required: true
+ *     responses:
+ *       "201":
+ *         $ref: "#/components/schemas/Ticket"
+ *       "401":
  *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
-router.post('/', controller.addNewTicket);
+router.post('/', passport_1.default.authenticate('jwt', { session: false }), controller.addNewTicket);
 /**
  * Delete ticket.
  *
  * @openapi
  *
- * paths:
- *   /tickets/{id}:
- *     delete:
- *       tags:
- *         - Tickets
- *       summary: Delete ticket by id
- *       description: Delete ticket by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Ticket id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: Ticket deleted successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /tickets/{id}:
+ *   delete:
+ *     tags:
+ *       - "Tickets"
+ *     summary: "Cancel ticket"
+ *     description: ""
+ *     parameters:
+ *       - in: "path"
+ *         name: "id"
+ *         description: "Booking is canceled"
+ *         required: true
+ *         schema:
+ *           type: "string"
+ *     responses:
+ *       "200":
+ *         description: "Booking cancled"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Ticket"
+ *       "400":
+ *         description: "Invalid ID supplied"
+ *       "404":
+ *         description: "Booking not found"
+ *     security:
+ *       - bearerAuth: []
  */
-router.delete('/:id', validateObjectId_1.default, controller.deleteTikcetById);
+router.delete('/:id', [passport_1.default.authenticate('jwt', { session: false }), validateObjectId_1.default], controller.deleteTicketById);
 exports.default = router;

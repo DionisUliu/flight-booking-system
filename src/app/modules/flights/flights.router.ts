@@ -10,30 +10,29 @@ const router = Router();
  *
  * @openapi
  *
- * paths:
- *   /airports:
- *     get:
- *       tags:
- *         - Flights
- *       summary: Get all flights
- *       description: Get all flights.
- *       responses:
- *         200:
- *           description: Flights were successfully received.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Flights"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /flights:
+ *   get:
+ *     tags:
+ *       - "Flights"
+ *     summary: "Get all flights"
+ *     description: ""
+ *     responses:
+ *       "200":
+ *         description: "OK"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: "array"
+ *               items:
+ *                 $ref: "#/components/schemas/Flight"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.get(
   '/',
@@ -46,37 +45,34 @@ router.get(
  *
  * @openapi
  *
- * paths:
- *   /flights/{id}:
- *     get:
- *       tags:
- *         - Flights
- *       summary: Get flight by id
- *       description: Get flight by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Flight id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         200:
- *           description: Flight was received successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 type: "array"
- *                 items:
- *                   $ref: "#/components/schemas/Flight"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /flights/{id}:
+ *   get:
+ *     tags:
+ *       - "Flights"
+ *     summary: "Get a flight details"
+ *     description: ""
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         description: "Flight id"
+ *         schema:
+ *           type: "string"
+ *         required: true
+ *     responses:
+ *       "200":
+ *         description: "OK"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Flight"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.get(
   '/:id',
@@ -89,57 +85,56 @@ router.get(
  *
  * @openapi
  *
- * paths:
- *   /flights:
- *     post:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Flights
- *       summary: Create flight
- *       description: Adds a new flight.
- *       requestBody:
+ * /flights:
+ *   post:
+ *     tags:
+ *       - "Flights"
+ *     summary: "Add a new flight"
+ *     description: ""
+ *     operationId: "addFlight"
+ *     requestBody:
+ *       description: "New flight added."
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             properties:
+ *               departureDate:
+ *                 type: "string"
+ *                 format: "date"
+ *               arrivalDate:
+ *                 type: "string"
+ *                 format: "date"
+ *               durationInHours:
+ *                 type: "number"
+ *               durationInMiles:
+ *                 type: "number"
+ *               departureAirport:
+ *                 type: "string"
+ *               arrivalAirport:
+ *                 type: "integer"
+ *               airplane:
+ *                 type: "string"
+ *     responses:
+ *       "200":
+ *         description: "OK"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - departureDate
- *                 - arrivalDate
- *                 - durationInHours
- *                 - durationInMiles
- *                 - departureAirport
- *                 - arrivalAirport
- *                 - airplane
- *               properties:
- *                 departureDate:
- *                   type: date
- *                 arrivalDate:
- *                   type: date
- *                 durationInHours:
- *                   type: number
- *                 durationInMiles:
- *                   type: number
- *                 departureAirport:
- *                   type: string
- *                 arrivalAirport:
- *                   type: string
- *                 airplane:
- *                   type: string
- *       responses:
- *         201:
- *           description: Flight created successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Airport"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Flight"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "422":
+ *         $ref: "#/components/responses/422"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
 router.post(
   '/',
@@ -152,60 +147,57 @@ router.post(
  *
  * @openapi
  *
- * paths:
- *   /flights/{id}:
- *     put:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Flights
- *       summary: Upadate flight by id
- *       description: Update flight by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Flight id
+ * /flights/{id}:
+ *   put:
+ *     tags:
+ *       - "Flights"
+ *     summary: "Update an existing flight"
+ *     description: ""
+ *     operationId: "updateFlight"
+ *     parameters:
+ *       - in: "path"
+ *         name: "id"
+ *         description: "Flight id"
+ *         schema:
+ *           type: "string"
+ *         required: true
+ *     requestBody:
+ *       description: "Flight object that needs to be updated"
+ *       required: true
+ *       content:
+ *         application/json:
  *           schema:
- *             type: "string"
- *             required: true
- *       requestBody:
- *         content:
- *           application/json:
- *             schema:
- *               required:
- *                 - departureDate
- *                 - arrivalDate
- *                 - durationInHours
- *                 - durationInMiles
- *                 - departureAirport
- *                 - arrivalAirport
- *                 - airplane
- *               properties:
- *                 departureDate:
- *                   type: date
- *                 arrivalDate:
- *                   type: date
- *                 durationInHours:
- *                   type: number
- *                 durationInMiles:
- *                   type: number
- *                 departureAirport:
- *                   type: string
- *                 arrivalAirport:
- *                   type: string
- *                 airplane:
- *                   type: string
- *       responses:
- *         204:
- *           description: Airport updated successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *             type: "object"
+ *             properties:
+ *               departureDate:
+ *                 type: "data"
+ *               arrivalDate:
+ *                 type: "string"
+ *               durationInHours:
+ *                 type: "string"
+ *               durationInMiles:
+ *                 type: "string"
+ *               departureAirport:
+ *                 type: "string"
+ *               arrivalAirport:
+ *                 type: "integer"
+ *               airplane:
+ *                 type: "string"
+ *     responses:
+ *       "200":
+ *         description: "OK"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
 router.put(
   '/:id',
@@ -222,33 +214,37 @@ router.put(
  *
  * @openapi
  *
- * paths:
- *   /flights/{id}:
- *     delete:
- *       security:
- *         - bearerAuth: []
- *       tags:
- *         - Flights
- *       summary: Delete flight by id
- *       description: Delete flight by id.
- *       parameters:
- *         - name: id
- *           in: path
- *           description: Flight id
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: Flight deleted successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /flights/{id}:
+ *   delete:
+ *     tags:
+ *       - "Flights"
+ *     summary: "Deletes a flight"
+ *     description: ""
+ *     operationId: "deleteFlight"
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         description: "Flight id to delete"
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: "string"
+ *     responses:
+ *       "204":
+ *         description: "Flight successfully deleted"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "403":
+ *         $ref: "#/components/responses/403"
+ *       "404":
+ *         $ref: "#/components/responses/404"
+ *       "500":
+ *         $ref: "#/components/responses/500"
+ *     security:
+ *       - bearerAuth: []
  */
 router.delete(
   '/:id',

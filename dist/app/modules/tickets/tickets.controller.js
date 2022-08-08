@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTikcetById = exports.addNewTicket = exports.getAllTickets = void 0;
+exports.deleteTicketById = exports.addNewTicket = exports.getAllTickets = void 0;
 const service = __importStar(require("./tickets.service"));
 const getAllTickets = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -57,7 +57,7 @@ const addNewTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.addNewTicket = addNewTicket;
-const deleteTikcetById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteTicketById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
         yield service.deleteTicketById(id);
@@ -67,4 +67,4 @@ const deleteTikcetById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         next(error);
     }
 });
-exports.deleteTikcetById = deleteTikcetById;
+exports.deleteTicketById = deleteTicketById;

@@ -9,52 +9,61 @@ const router = Router();
  *
  * @openapi
  *
- * paths:
- *   /register:
- *     post:
- *       tags:
- *         - Authentication
- *       summary: Register user
- *       description: Adds a new user.
- *       requestBody:
+ * /authentication/register:
+ *   post:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Sign up"
+ *     description: "Adds a new user account and sends a confirmation email"
+ *     requestBody:
+ *       description: "Sign up user"
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             required:
+ *               - "email"
+ *               - "password"
+ *               - "firstName"
+ *               - "lastName"
+ *               - "redirectUrl"
+ *             properties:
+ *               email:
+ *                 type: "string"
+ *                 format: "email"
+ *               password:
+ *                 type: "string"
+ *                 format: "password"
+ *               firstName:
+ *                 type: "string"
+ *               lastName:
+ *                 type: "string"
+ *               phoneNumber:
+ *                 type: "string"
+ *               redirectUrl:
+ *                 type: "string"
+ *                 format: "uri"
+ *     responses:
+ *       "204":
+ *         description: "User created successfully"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "422":
+ *         description: "Unprocessable entity"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - email
- *                 - password
- *                 - firstName
- *                 - lastName
- *                 - phoneNumber
- *                 - redirectUrl
- *               properties:
- *                 email:
- *                   type: string
- *                 password:
- *                   type: string
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 phoneNumber:
- *                   type: string
- *                 redirectUrl:
- *                   type: string
- *       responses:
- *         201:
- *           description: User created successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Authentication"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               emailExists:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Unprocessable Entity
+ *                   message: Your request was understood but could not be completed due to semantic errors
+ *                   details: An account with the given email already exists
+ *                   summary: Email exists
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.post('/register', controller.registerUser);
 
@@ -63,40 +72,47 @@ router.post('/register', controller.registerUser);
  *
  * @openapi
  *
- * paths:
- *   /resend-confirmation-email:
- *     post:
- *       tags:
- *         - Authentication
- *       summary: Resend confirmation email
- *       description: Resend confirmation email.
- *       requestBody:
+ * /authentication/resend-confirmation-email:
+ *   post:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Resend confirmation email"
+ *     description: "Resends a confirmation email to the given email address"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             required:
+ *               - "email"
+ *               - "redirectUrl"
+ *             properties:
+ *               email:
+ *                 type: "string"
+ *                 format: "email"
+ *               redirectUrl:
+ *                 type: "string"
+ *                 format: "uri"
+ *     responses:
+ *       "204":
+ *         description: "Email sent successfully"
+ *       "404":
+ *         description: "Not Found"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - email
- *                 - redirectUrl
- *               properties:
- *                 email:
- *                   type: string
- *                 redirectUrl:
- *                   type: string
- *       responses:
- *         201:
- *           description: Email sent successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Authentication"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               emailExists:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Not Found
+ *                   message: The requested item was not found
+ *                   details: The requested user does not exist, or the account is already confirmed
+ *                   summary: User not found or account confirmed
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.post('/resend-confirmation-email', controller.resendConfirmationEmail);
 
@@ -105,31 +121,40 @@ router.post('/resend-confirmation-email', controller.resendConfirmationEmail);
  *
  * @openapi
  *
- * paths:
- *   /confirmation:
- *     put:
- *       tags:
- *         - Authentication
- *       summary: Confirm account
- *       description: Confirm account.
- *       parameters:
- *         - name: token
- *           in: path
- *           description: confirmation token
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: Account confirmed.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /authentication/confirmation:
+ *   put:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Confirm account"
+ *     description: "Sets user confirmation level to 'confirmed'"
+ *     parameters:
+ *       - name: "token"
+ *         in: "query"
+ *         description: "User confiramation token"
+ *         required: true
+ *         schema:
+ *           type: "string"
+ *     responses:
+ *       "204":
+ *         description: "Account confirmed successfully"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "404":
+ *         description: "Not Found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               emailExists:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Not Found
+ *                   message: The requested item was not found
+ *                   details: The requested user does not exist, or the account is already confirmed
+ *                   summary: User not found or account confirmed
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.put('/confirmation', controller.confirmAccount);
 
@@ -138,40 +163,71 @@ router.put('/confirmation', controller.confirmAccount);
  *
  * @openapi
  *
- * paths:
- *   /login:
- *     post:
- *       tags:
- *         - Authentication
- *       summary: Login user
- *       description: Login user.
- *       requestBody:
+ * /authentication/login:
+ *   post:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Log in"
+ *     description: "Authenticate with email and password"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             required:
+ *               - "email"
+ *               - "password"
+ *             properties:
+ *               email:
+ *                 type: "string"
+ *                 format: "email"
+ *               password:
+ *                 type: "string"
+ *                 format: "password"
+ *     responses:
+ *       "200":
+ *         description: "User authenticated successfully"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - email
- *                 - password
+ *               allOf:
+ *               - $ref: "#/components/schemas/User"
  *               properties:
- *                 email:
+ *                 token:
  *                   type: string
- *                 password:
- *                   type: string
- *       responses:
- *         201:
- *           description: User logged in successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Authentication"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         description: Not Authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               userNotFound:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Not Authenticated
+ *                   message: Missing authentication or invalid credentials
+ *                   details: The requested user does not exist in our database
+ *                 summary: User not found
+ *               invalidPassword:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Not Authenticated
+ *                   message: Missing authentication or invalid credentials
+ *                   details: The provided password is incorrect
+ *                 summary: Invalid password
+ *               notConfirmed:
+ *                 value:
+ *                   code: ckgjkxvgl000431pp4xlpew2g
+ *                   name: Not Authenticated
+ *                   message: Missing authentication or invalid credentials
+ *                   details: Your account is not confirmed
+ *                 summary: Account not confirmed
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.post('/login', controller.logIn);
 
@@ -180,40 +236,44 @@ router.post('/login', controller.logIn);
  *
  * @openapi
  *
- * paths:
- *   /request-new-password:
- *     post:
- *       tags:
- *         - Authentication
- *       summary: Request new password
- *       description: Request new password.
- *       requestBody:
+ * /authentication/request-new-password:
+ *   post:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Request new password"
+ *     description: "Sends an email with the reset password instructions"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             required:
+ *               - "email"
+ *               - "redirectUrl"
+ *             properties:
+ *               email:
+ *                 type: "string"
+ *                 format: "email"
+ *               redirectUrl:
+ *                 type: "string"
+ *                 format: "uri"
+ *     responses:
+ *       "204":
+ *         description: "Email sent successfully"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "404":
+ *         description: "Not Found"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - email
- *                 - redirectUrl
- *               properties:
- *                 email:
- *                   type: string
- *                 redirectUrl:
- *                   type: string
- *       responses:
- *         201:
- *           description: Request sent successfully.
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: "#/components/schemas/Authentication"
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               userNotFound:
+ *                 $ref: "#/components/examples/UserNotFound"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.post('/request-new-password', controller.requestNewPassword);
 
@@ -222,36 +282,42 @@ router.post('/request-new-password', controller.requestNewPassword);
  *
  * @openapi
  *
- * paths:
- *   /password:
- *     put:
- *       tags:
- *         - Authentication
- *       summary: Reset password
- *       description: Reset password.
- *       requestBody:
+ * /authentication/password:
+ *   put:
+ *     tags:
+ *       - "Authentication"
+ *     summary: "Reset password"
+ *     description: "Reset the user password"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: "object"
+ *             required:
+ *               - "token"
+ *               - "password"
+ *             properties:
+ *               token:
+ *                 type: "string"
+ *               password:
+ *                 type: "string"
+ *     responses:
+ *       "204":
+ *         description: "Password updated successfully"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "404":
+ *         description: "Not found"
  *         content:
  *           application/json:
  *             schema:
- *               required:
- *                 - token
- *                 - password
- *               properties:
- *                 token:
- *                   type: string
- *                 password:
- *                   type: string
- *       responses:
- *         204:
- *           description: Password reseted successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               userNotFound:
+ *                 $ref: "#/components/examples/UserNotFound"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.put('/password', controller.resetPassword);
 
@@ -260,24 +326,36 @@ router.put('/password', controller.resetPassword);
  *
  * @openapi
  *
- * paths:
- *   /two-factor-auth/initialization:
- *     put:
- *       tags:
- *         - Authentication
- *       summary: Initialize two factor authentication
- *       description: Initialize two factor authentication.
- *       responses:
- *         204:
- *           description: QR code generated successfully.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /authentication/two-factor-auth/initialization:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       -  "Authentication"
+ *     summary: "Initialize two-factor authentication"
+ *     description: "Generates a QR code and returns it to the client."
+ *     responses:
+ *       "200":
+ *         description: "QR code generated successfully"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               description: "Base64 representation of the QR code"
+ *               type: string
+ *               format: base64
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "404":
+ *         description: "Not found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               userNotFound:
+ *                 $ref: "#/components/examples/UserNotFound"
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.put(
   '/two-factor-auth/initialization',
@@ -290,31 +368,63 @@ router.put(
  *
  * @openapi
  *
- * paths:
- *   /two-factor-auth/activation:
- *     put:
- *       tags:
- *         - Authentication
- *       summary: Activate two factor authentication
- *       description: Activate two factor authentication.
- *       parameters:
- *         - name: token
- *           in: path
- *           description: activation token
+ * /authentication/two-factor-auth/activation:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       -  "Authentication"
+ *     summary: "Activate two-factor authentication"
+ *     description: "Receives a token from the user and validates it. If the token is valid, the two-factor authentication becomes active."
+ *     requestBody:
+ *       content:
+ *         application/json:
  *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: 2FA activated.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ *             required:
+ *               - "token"
+ *             properties:
+ *               token:
+ *                 description: Token generated from a third party app (e.g. Google Authenticator)
+ *                 type: string
+ *     responses:
+ *       "204":
+ *         description: "Two-factor-authentication activated successfully"
+ *       "400":
+ *         $ref: "#/components/responses/400"
+ *       "401":
+ *         $ref: "#/components/responses/401"
+ *       "404":
+ *         description: "Not found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Error"
+ *             examples:
+ *               userNotFound:
+ *                 $ref: "#/components/examples/UserNotFound"
+ *       "422":
+ *         description: Unprocessable Entity
+ *         content:
+ *             application/json:
+ *               schema:
+ *                 $ref: "#/components/schemas/Error"
+ *               examples:
+ *                 noTwoFactorAuth:
+ *                   value:
+ *                     code: ckgjkxvgl000431pp4xlpew2g
+ *                     name: Unprocessable Entity
+ *                     message: Your request was understood but could not be completed due to semantic errors
+ *                     details: Two-factor authentication is not enabled for your account
+ *                   summary: No two-factor-auth enabled
+ *                 invalidToken:
+ *                   value:
+ *                     code: ckgjkxvgl000431pp4xlpew2g
+ *                     name: Unprocessable Entity
+ *                     message: Your request was understood but could not be completed due to semantic errors
+ *                     details: The provided token is not valid
+ *                   summary: Invalid token
+ *       "500":
+ *         $ref: "#/components/responses/500"
  */
 router.put(
   '/two-factor-auth/activation',
@@ -327,31 +437,34 @@ router.put(
  *
  * @openapi
  *
- * paths:
- *   /two-factor-auth/verification:
- *     head:
- *       tags:
- *         - Authentication
- *       summary: Verificate two factor authentication
- *       description: Verificate two factor authentication.
- *       parameters:
- *         - name: token
- *           in: path
- *           description: verification token
- *           schema:
- *             type: "string"
- *             required: true
- *       responses:
- *         204:
- *           description: 2FA verificated.
- *         400:
- *           $ref: "#/components/responses/400"
- *         401:
- *           $ref: "#/components/responses/401"
- *         403:
- *           $ref: "#/components/responses/403"
- *         500:
- *           $ref: "#/components/responses/500"
+ * /authentication/two-factor-auth/verification:
+ *   head:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       -  "Authentication"
+ *     summary: "verify two-factor authentication"
+ *     description: "Receives a token from the user and validates it."
+ *     parameters:
+ *       - in: "query"
+ *         name: "token"
+ *         description: "Token generated from a third party app (e.g. Google Authenticator)"
+ *         required: true
+ *         schema:
+ *           type: "string"
+ *     responses:
+ *       "200":
+ *         description: "Token is valid"
+ *       "400":
+ *         description: "Bad request"
+ *       "401":
+ *         description: "Not Authenticated"
+ *       "404":
+ *         description: "Not found"
+ *       "422":
+ *         description: "Unprocessable Entity"
+ *       "500":
+ *         description: "Internal Server Error"
  */
 router.head(
   '/two-factor-auth/verification',
