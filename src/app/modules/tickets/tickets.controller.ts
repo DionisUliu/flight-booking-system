@@ -5,7 +5,7 @@ import * as service from './tickets.service';
 const getAllTickets = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const tickets = await service.getAllTickets({
@@ -20,7 +20,7 @@ const getAllTickets = async (
 const addNewTicket = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const ticket: TicketType = req.body;
@@ -31,10 +31,10 @@ const addNewTicket = async (
   }
 };
 
-const deleteTikcetById = async (
+const deleteTicketById = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { id } = req.params;
@@ -45,4 +45,4 @@ const deleteTikcetById = async (
   }
 };
 
-export { getAllTickets, addNewTicket, deleteTikcetById };
+export { getAllTickets, addNewTicket, deleteTicketById };

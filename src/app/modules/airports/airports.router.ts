@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import Passport from 'passport';
+import isAuthorized from '../../middleware/isAuthorized';
 import validateObjectId from '../../middleware/validateObjectId';
 import * as controller from './airports.controller';
 const router = Router();
@@ -33,7 +35,11 @@ const router = Router();
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/', controller.getAllAirports);
+router.get(
+  '/',
+  Passport.authenticate('jwt', { session: false }),
+  controller.getAllAirports,
+);
 
 /**
  * Get airport by id.
@@ -72,7 +78,11 @@ router.get('/', controller.getAllAirports);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/:id', validateObjectId, controller.getAirportById);
+router.get(
+  '/:id',
+  [Passport.authenticate('jwt', { session: false }), validateObjectId],
+  controller.getAirportById,
+);
 
 /**
  * Create new airport.
@@ -119,7 +129,11 @@ router.get('/:id', validateObjectId, controller.getAirportById);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.post('/', controller.addNewAirport);
+router.post(
+  '/',
+  [Passport.authenticate('jwt', { session: false }), isAuthorized],
+  controller.addNewAirport,
+);
 
 /**
  * Update airport.
@@ -169,7 +183,15 @@ router.post('/', controller.addNewAirport);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.put('/:id', validateObjectId, controller.updateAirport);
+router.put(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
+  controller.updateAirport,
+);
 
 /**
  * Delete airport.
@@ -204,6 +226,14 @@ router.put('/:id', validateObjectId, controller.updateAirport);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.delete('/:id', validateObjectId, controller.deleteAirportById);
+router.delete(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
+  controller.deleteAirportById,
+);
 
 export default router;

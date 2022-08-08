@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import Passport from 'passport';
 import * as controller from './airplanes.controller';
 import validateObjectId from '../../middleware/validateObjectId';
+import isAuthorized from '../../middleware/isAuthorized';
 const router = Router();
 
 /**
@@ -33,7 +35,11 @@ const router = Router();
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/', controller.getAllAirplanes);
+router.get(
+  '/',
+  Passport.authenticate('jwt', { session: false }),
+  controller.getAllAirplanes,
+);
 
 /**
  * Get airplane by id.
@@ -72,7 +78,11 @@ router.get('/', controller.getAllAirplanes);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/:id', validateObjectId, controller.getAirplaneById);
+router.get(
+  '/:id',
+  [Passport.authenticate('jwt', { session: false }), validateObjectId],
+  controller.getAirplaneById,
+);
 
 /**
  * Add new airplane.
@@ -119,7 +129,11 @@ router.get('/:id', validateObjectId, controller.getAirplaneById);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.post('/', controller.addNewAirplane);
+router.post(
+  '/',
+  [Passport.authenticate('jwt', { session: false }), isAuthorized],
+  controller.addNewAirplane,
+);
 
 /**
  * Update airplane.
@@ -154,7 +168,15 @@ router.post('/', controller.addNewAirplane);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.put('/:id', validateObjectId, controller.updateAirplane);
+router.put(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
+  controller.updateAirplane,
+);
 
 /**
  * Delete airplane.
@@ -189,6 +211,14 @@ router.put('/:id', validateObjectId, controller.updateAirplane);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.delete('/:id', validateObjectId, controller.deleteAirplaneById);
+router.delete(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
+  controller.deleteAirplaneById,
+);
 
 export default router;

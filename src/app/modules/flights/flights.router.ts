@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import Passport from 'passport';
 import * as controller from './flights.controller';
 import validateObjectId from '../../middleware/validateObjectId';
+import isAuthorized from '../../middleware/isAuthorized';
 const router = Router();
 
 /**
@@ -33,7 +35,11 @@ const router = Router();
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/', controller.getAllAFlights);
+router.get(
+  '/',
+  Passport.authenticate('jwt', { session: false }),
+  controller.getAllAFlights,
+);
 
 /**
  * Get flight by id.
@@ -72,7 +78,11 @@ router.get('/', controller.getAllAFlights);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/:id', validateObjectId, controller.getFlightById);
+router.get(
+  '/:id',
+  [Passport.authenticate('jwt', { session: false }), validateObjectId],
+  controller.getFlightById,
+);
 
 /**
  * Create new flight.
@@ -131,7 +141,11 @@ router.get('/:id', validateObjectId, controller.getFlightById);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.post('/', controller.addNewFlight);
+router.post(
+  '/',
+  [Passport.authenticate('jwt', { session: false }), isAuthorized],
+  controller.addNewFlight,
+);
 
 /**
  * Update flight.
@@ -193,8 +207,16 @@ router.post('/', controller.addNewFlight);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.put('/:id', validateObjectId, controller.updateFlight);
+router.put(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
 
+  controller.updateFlight,
+);
 /**
  * Delete flight.
  *
@@ -228,6 +250,14 @@ router.put('/:id', validateObjectId, controller.updateFlight);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.delete('/:id', validateObjectId, controller.deleteFlightById);
+router.delete(
+  '/:id',
+  [
+    Passport.authenticate('jwt', { session: false }),
+    isAuthorized,
+    validateObjectId,
+  ],
 
+  controller.deleteFlightById,
+);
 export default router;

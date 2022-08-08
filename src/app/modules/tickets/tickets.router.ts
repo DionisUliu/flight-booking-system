@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import Passport from 'passport';
 import * as controller from './tickets.controller';
 import validateObjectId from '../../middleware/validateObjectId';
+import isAuthorized from '../../middleware/isAuthorized';
 const router = Router();
 
 /**
@@ -35,7 +37,11 @@ const router = Router();
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.get('/', controller.getAllTickets);
+router.get(
+  '/',
+  [Passport.authenticate('jwt', { session: false }), isAuthorized],
+  controller.getAllTickets,
+);
 
 /**
  * Create new ticket.
@@ -86,7 +92,11 @@ router.get('/', controller.getAllTickets);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.post('/', controller.addNewTicket);
+router.post(
+  '/',
+  Passport.authenticate('jwt', { session: false }),
+  controller.addNewTicket,
+);
 
 /**
  * Delete ticket.
@@ -119,6 +129,10 @@ router.post('/', controller.addNewTicket);
  *         500:
  *           $ref: "#/components/responses/500"
  */
-router.delete('/:id', validateObjectId, controller.deleteTikcetById);
+router.delete(
+  '/:id',
+  [Passport.authenticate('jwt', { session: false }), validateObjectId],
+  controller.deleteTicketById,
+);
 
 export default router;
