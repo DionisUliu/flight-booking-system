@@ -1,0 +1,209 @@
+openapi: '3.0.0'
+
+info:
+  description: 'Flight Booking System API'
+  version: '1.0.0'
+  title: 'Flight Booking System Guide'
+
+servers:
+  - url: http://localhost:{port}/{base_path}
+    description: Local development server
+    variables:
+      port:
+        default: '5000'
+      base_path:
+        default: 'api/v1'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      properties:
+        code:
+          type: string
+          description: Debug Id
+        name:
+          type: string
+          description: A human-readable error name
+        message:
+          type: string
+          description: A human-readable error message
+        details:
+          oneOf:
+            - type: string
+              description: A more specific human-readable error message
+            - type: object
+              description: A more specific human-readable error message together with some details
+            - type: array
+              description: An array with issues from multiple fields (e.g. input validation)
+    User:
+      type: 'object'
+      required:
+        - 'firstName'
+        - 'lastName'
+        - 'email'
+        - 'password'
+      properties:
+        email:
+          type: 'string'
+          format: 'email'
+        password:
+          type: 'string'
+          format: 'password'
+        firstName:
+          type: 'string'
+        lastName:
+          type: 'string'
+    Airplane:
+      type: 'object'
+      properties:
+        _id:
+          type: 'string'
+        name:
+          type: 'string'
+        seats:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              _id:
+                type: string
+              seatName:
+                type: 'string'
+              price:
+                type: 'integer'
+    Airport:
+      type: 'object'
+      properties:
+        _id:
+          type: 'string'
+        name:
+          type: 'string'
+        address:
+          type: 'object'
+          properties:
+            _id:
+              type: 'string'
+            country:
+              type: 'string'
+            city:
+              type: 'string'
+            street:
+              type: 'string'
+            zipCode:
+              type: 'string'
+    Flight:
+      type: 'object'
+      properties:
+        _id:
+          type: 'string'
+        departureTime:
+          type: 'string'
+        arrivalTime:
+          type: 'string'
+        flyingFrom:
+          type: 'string'
+        flyingTo:
+          type: 'string'
+        airplaneId:
+          type: 'string'
+        defaultPrice:
+          type: 'integer'
+    Booking:
+      type: 'object'
+      properties:
+        _id:
+          type: 'string'
+        departureTime:
+          type: 'string'
+        arrivalTime:
+          type: 'string'
+        flyingFrom:
+          type: 'string'
+        flyingTo:
+          type: 'string'
+        airplaneName:
+          type: 'string'
+        price:
+          type: 'number'
+        seat:
+          type: 'string'
+        passangerFullname:
+          type: 'string'
+  responses:
+    400:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Bad Request
+            message: Your request contains invalid or missing data
+            details:
+              [
+                {
+                  message: '"{fieldName}" must be a valid {fieldType}',
+                  path: ['{pathToField}'],
+                },
+              ]
+    401:
+      description: Not Authenticated
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: 'Unauthorized'
+    403:
+      description: Not Authorized / Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Not Authorized / Forbidden
+            message: Your request cannot be completed due to missing permissions
+    404:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Not Found
+            message: The requested item was not found
+    422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Unprocessable Entity
+            message: Your request was understood but could not be completed due to semantic errors
+    500:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: ckgjkxvgl000431pp4xlpew2g
+            name: Internal Server Error
+            message: Operation cannot be completed due to a problem
+  examples:
+    UserNotFound:
+      value:
+        code: ckgjkxvgl000431pp4xlpew2g
+        name: Not Found
+        message: The requested item was not found
+        details: The requested user does not exist in our database
+      summary: User not found
